@@ -1,6 +1,39 @@
-#grid{
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#grid {
     width: 400px;
-    height: 300px;
+    height: auto;
     display: flex;
     flex-wrap: wrap;
+    margin: 20px auto;
+    gap: 10px;
+}
+
+img {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    backface-visibility: hidden;
+}
+
+img.flipped {
+    transform: rotateY(180deg);
+}
+
+img.match {
+    visibility: hidden;
+}
+
+#difficulty {
+    margin: 10px 0;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
 }
