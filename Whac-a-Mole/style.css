@@ -1,0 +1,17 @@
+.grid {
+    width: 600px;
+    height: 600px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.square {
+    height: 200px;
+    width: 200px;
+    border: solid black 1px;
+}
+
+.mole {
+    background-image: url('Memory-Game/Image-files/mole.jpg');
+    background-size: cover;
+}
