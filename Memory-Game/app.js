@@ -11,6 +11,9 @@ const cardsWon = [];
 let timer = 0;
 let interval;
 let bestTime = localStorage.getItem('bestTime') || null;
+let lockBoard = false; // Prevent additional flips during match check
+
+const flipDelay = 1000; // Time (in ms) to show mismatched cards before flipping back
 
 if (bestTime) bestTimeDisplay.textContent = `${bestTime} seconds`;
 
@@ -62,13 +65,20 @@ function stopTimer() {
 }
 
 function flipCard() {
+    if (lockBoard) return; // Prevent flipping if lockBoard is true
+
     const cardId = this.getAttribute('data-id');
+    if (cardsChosenIds.includes(cardId)) return; // Avoid double-clicking the same card
+
     cardsChosen.push(cardArray[cardId].name);
     cardsChosenIds.push(cardId);
-    this.classList.add('flipped');
     this.setAttribute('src', cardArray[cardId].img);
+    this.classList.add('flipped');
 
-    if (cardsChosen.length === 2) setTimeout(checkMatch, 500);
+    if (cardsChosen.length === 2) {
+        lockBoard = true; // Lock the board while checking for a match
+        setTimeout(checkMatch, flipDelay);
+    }
 }
 
 function checkMatch() {
@@ -78,9 +88,12 @@ function checkMatch() {
     if (optionOneId === optionTwoId) {
         alert('You clicked the same card!');
         cards[optionOneId].setAttribute('src', 'Image-files/images/blank.png');
+        cards[optionTwoId].setAttribute('src', 'Image-files/images/blank.png');
     } else if (cardsChosen[0] === cardsChosen[1]) {
         cards[optionOneId].classList.add('match');
         cards[optionTwoId].classList.add('match');
+        cards[optionOneId].removeEventListener('click', flipCard);
+        cards[optionTwoId].removeEventListener('click', flipCard);
         cardsWon.push(cardsChosen);
         resultDisplay.textContent = cardsWon.length;
     } else {
@@ -90,6 +103,7 @@ function checkMatch() {
 
     cardsChosen = [];
     cardsChosenIds = [];
+    lockBoard = false; // Unlock the board after handling the cards
 
     if (cardsWon.length === cardArray.length / 2) {
         resultDisplay.textContent = 'Congratulations, you found all matches!';
