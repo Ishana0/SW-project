@@ -12,11 +12,12 @@ let timer = 0;
 let interval;
 let bestTime = localStorage.getItem('bestTime') || null;
 let lockBoard = false; // Prevent additional flips during match check
-
 const flipDelay = 1000; // Time (in ms) to show mismatched cards before flipping back
 
+// Update best time on the UI
 if (bestTime) bestTimeDisplay.textContent = `${bestTime} seconds`;
 
+// Shuffle cards and set the difficulty
 function shuffleCards(difficulty) {
     const baseCards = [
         { name: 'fries', img: 'Image-files/images/fries.png' },
@@ -27,12 +28,14 @@ function shuffleCards(difficulty) {
         { name: 'pizza', img: 'Image-files/images/pizza.png' },
     ];
 
+    // Adjust the number of cards based on difficulty
     const multiplier = difficulty === 'easy' ? 2 : difficulty === 'medium' ? 3 : 4;
     cardArray = [...baseCards.slice(0, multiplier), ...baseCards.slice(0, multiplier)];
     cardArray.sort(() => 0.5 - Math.random());
     createBoard();
 }
 
+// Create the game board
 function createBoard() {
     gridDisplay.innerHTML = '';
     cardArray.forEach((_, i) => {
@@ -45,6 +48,7 @@ function createBoard() {
     startTimer();
 }
 
+// Start the timer
 function startTimer() {
     clearInterval(interval);
     timer = 0;
@@ -55,6 +59,7 @@ function startTimer() {
     }, 1000);
 }
 
+// Stop the timer and update best time if applicable
 function stopTimer() {
     clearInterval(interval);
     if (!bestTime || timer < bestTime) {
@@ -64,9 +69,9 @@ function stopTimer() {
     }
 }
 
+// Flip a card
 function flipCard() {
-    if (lockBoard) return; // Prevent flipping if lockBoard is true
-
+    if (lockBoard) return; // Prevent flipping if lockBoard is true 
     const cardId = this.getAttribute('data-id');
     if (cardsChosenIds.includes(cardId)) return; // Avoid double-clicking the same card
 
@@ -81,15 +86,18 @@ function flipCard() {
     }
 }
 
+// Check for a match
 function checkMatch() {
     const cards = document.querySelectorAll('img');
     const [optionOneId, optionTwoId] = cardsChosenIds;
 
     if (optionOneId === optionTwoId) {
         alert('You clicked the same card!');
-        cards[optionOneId].setAttribute('src', 'Image-files/images/blank.png');
-        cards[optionTwoId].setAttribute('src', 'Image-files/images/blank.png');
+        setTimeout(() => {
+            cards[optionOneId].setAttribute('src', 'Image-files/images/blank.png');
+        }, flipDelay);
     } else if (cardsChosen[0] === cardsChosen[1]) {
+        // If it's a match
         cards[optionOneId].classList.add('match');
         cards[optionTwoId].classList.add('match');
         cards[optionOneId].removeEventListener('click', flipCard);
@@ -97,20 +105,28 @@ function checkMatch() {
         cardsWon.push(cardsChosen);
         resultDisplay.textContent = cardsWon.length;
     } else {
-        cards[optionOneId].setAttribute('src', 'Image-files/images/blank.png');
-        cards[optionTwoId].setAttribute('src', 'Image-files/images/blank.png');
+        // If it's not a match, delay flipping back
+        setTimeout(() => {
+            cards[optionOneId].setAttribute('src', 'Image-files/images/blank.png');
+            cards[optionTwoId].setAttribute('src', 'Image-files/images/blank.png');
+        }, flipDelay);
     }
 
-    cardsChosen = [];
-    cardsChosenIds = [];
-    lockBoard = false; // Unlock the board after handling the cards
+    // Always reset choices and unlock board AFTER delay
+    setTimeout(() => {
+        cardsChosen = [];
+        cardsChosenIds = [];
+        lockBoard = false;
 
-    if (cardsWon.length === cardArray.length / 2) {
-        resultDisplay.textContent = 'Congratulations, you found all matches!';
-        stopTimer();
-    }
+        // Check if the game is won
+        if (cardsWon.length === cardArray.length / 2) {
+            resultDisplay.textContent = 'Congratulations, you found all matches!';
+            stopTimer();
+        }
+    }, flipDelay);
 }
 
+// Add event listeners to difficulty buttons
 difficultyButtons.forEach((button) =>
     button.addEventListener('click', () => {
         shuffleCards(button.id);

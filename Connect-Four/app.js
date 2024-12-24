@@ -2,7 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const squares = document.querySelectorAll('.grid div')
     const result = document.querySelector('#result')
     const displayCurrentPlayer = document.querySelector('#current-player')
-    let currentPlayer = 1
+    const timerDisplay = document.querySelector('#timer');
+    let currentPlayer = 1;
+    let timer;
+    let timeLeft = 10;
 
     const winningArrays = [
         [0, 1, 2, 3],
@@ -74,54 +77,116 @@ document.addEventListener('DOMContentLoaded', () => {
         [11, 18, 25, 32],
         [12, 19, 26, 33],
         [13, 20, 27, 34],
-    ]
+    ];
 
+    // Function to reset the timer
+    function resetTimer() {
+        clearInterval(timer);
+        timeLeft = 10;
+        timerDisplay.textContent = `Time left: ${timeLeft}s`;
+        timer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = `Time left: ${timeLeft}s`;
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                switchPlayer();
+            }
+        }, 1000);
+    }
+
+    // Function to check the board for wins
     function checkBoard() {
         for (let y = 0; y < winningArrays.length; y++) {
-            const square1 = squares[winningArrays[y][0]]
-            const square2 = squares[winningArrays[y][1]]
-            const square3 = squares[winningArrays[y][2]]
-            const square4 = squares[winningArrays[y][3]]
+            const square1 = squares[winningArrays[y][0]];
+            const square2 = squares[winningArrays[y][1]];
+            const square3 = squares[winningArrays[y][2]];
+            const square4 = squares[winningArrays[y][3]];
 
-            //check those squares to see if they all have the class of player-one
             if (
                 square1.classList.contains('player-one') &&
                 square2.classList.contains('player-one') &&
                 square3.classList.contains('player-one') &&
                 square4.classList.contains('player-one')
             ) {
-                result.innerHTML = 'Player One Wins!'
+                result.textContent = 'Player One Wins!';
+                clearInterval(timer);
+                return;
             }
-            //check those squares to see if they all have the class of player-two
+
             if (
                 square1.classList.contains('player-two') &&
                 square2.classList.contains('player-two') &&
                 square3.classList.contains('player-two') &&
                 square4.classList.contains('player-two')
             ) {
-                result.innerHTML = 'Player Two Wins!'
+                result.textContent = 'Player Two Wins!';
+                clearInterval(timer);
+                return;
             }
         }
     }
 
-    for (let i = 0; i < squares.length; i++) {
-        squares[i].onclick = () => {
-            //if the square below your current square is taken, you can go ontop of it
-            if (squares[i + 7].classList.contains('taken') && !squares[i].classList.contains('taken')) {
-                if (currentPlayer == 1) {
-                    squares[i].classList.add('taken')
-                    squares[i].classList.add('player-one')
-                    currentPlayer = 2
-                    displayCurrentPlayer.innerHTML = currentPlayer
-                } else if (currentPlayer == 2) {
-                    squares[i].classList.add('taken')
-                    squares[i].classList.add('player-two')
-                    currentPlayer = 1
-                    displayCurrentPlayer.innerHTML = currentPlayer
-                }
-            } else alert('Cant go here')
-            checkBoard()
+    // Function to switch player
+    function switchPlayer() {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        displayCurrentPlayer.textContent = currentPlayer;
+
+        if (currentPlayer === 2) {
+            setTimeout(() => aiMove(), 500); // AI plays after 0.5s
+        }
+        resetTimer();
+    }
+
+    // Simple AI logic for Player 2
+    function aiMove() {
+        let availableMoves = [];
+        for (let i = 0; i < squares.length; i++) {
+            if (squares[i + 7]?.classList.contains('taken') && !squares[i].classList.contains('taken')) {
+                availableMoves.push(i);
+            }
+        }
+
+        const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        if (randomMove !== undefined) {
+            squares[randomMove].classList.add('taken', 'player-two');
+            checkBoard();
+            switchPlayer();
         }
     }
 
-})
+    // Add click event listeners for player moves
+    for (let i = 0; i < squares.length; i++) {
+        squares[i].addEventListener('click', () => {
+            if (squares[i + 7]?.classList.contains('taken') && !squares[i].classList.contains('taken')) {
+                squares[i].classList.add('taken');
+                squares[i].classList.add(currentPlayer === 1 ? 'player-one' : 'player-two');
+                checkBoard();
+                switchPlayer();
+            }
+        });
+    }
+
+    resetTimer();
+});
+
+//     for (let i = 0; i < squares.length; i++) {
+//         squares[i].onclick = () => {
+//             //if the square below your current square is taken, you can go ontop of it
+//             if (squares[i + 7].classList.contains('taken') && !squares[i].classList.contains('taken')) {
+//                 if (currentPlayer == 1) {
+//                     squares[i].classList.add('taken')
+//                     squares[i].classList.add('player-one')
+//                     currentPlayer = 2
+//                     displayCurrentPlayer.innerHTML = currentPlayer
+//                 } else if (currentPlayer == 2) {
+//                     squares[i].classList.add('taken')
+//                     squares[i].classList.add('player-two')
+//                     currentPlayer = 1
+//                     displayCurrentPlayer.innerHTML = currentPlayer
+//                 }
+//             } else alert('Cant go here')
+//             checkBoard()
+//         }
+//     }
+
+// })
