@@ -18,6 +18,12 @@ let wins = 0;
 let losses = 0;
 let ties = 0;
 
+// Sound effects
+const winSound = new Audio('RockPaperScissors/sounds/win.mp3');
+const loseSound = new Audio('RockPaperScissors/sounds/lose.mp3');
+const drawSound = new Audio('RockPaperScissors/sounds/draw.mp3');
+
+// Reset button functionality
 resetButton.addEventListener('click', () => {
     playerScore = 0;
     computerScore = 0;
@@ -34,6 +40,7 @@ resetButton.addEventListener('click', () => {
     tiesDisplay.innerHTML = ties;
 });
 
+// Game logic for each button
 options.forEach(option => option.addEventListener('click', (e) => {
     playerSelection = e.target.id;
     playerSelectionDisplay.innerHTML = playerSelection;
@@ -43,16 +50,19 @@ options.forEach(option => option.addEventListener('click', (e) => {
     calculateOutcome();
 }));
 
+// Computer's random choice
 function determineComputerSelection() { 
     const choices = ['rock', 'paper', 'scissors'];
     computerSelection = choices[Math.floor(Math.random() * 3)];
     computerSelectionDisplay.innerHTML = computerSelection;
 }
 
+// Calculate outcome and update scores
 function calculateOutcome() {
     if (computerSelection === playerSelection) {
         outcome = "It's a draw!";
         ties++;
+        drawSound.play();
     } else if (
         (computerSelection === "rock" && playerSelection === "scissors") ||
         (computerSelection === "paper" && playerSelection === "rock") ||
@@ -61,14 +71,17 @@ function calculateOutcome() {
         outcome = "Computer wins!";
         computerScore++;
         losses++;
+        loseSound.play();
     } else {
         outcome = "Player wins!";
         playerScore++;
         wins++;
+        winSound.play();
     }
     updateDisplay();
 }
 
+// Update DOM with new scores and results
 function updateDisplay() {
     outcomeDisplay.innerHTML = `${outcome} (Player: ${playerSelection}, Computer: ${computerSelection})`;
     playerScoreDisplay.innerHTML = playerScore;
