@@ -7,13 +7,6 @@ const logsRight = document.querySelectorAll('.log-right');
 const carsLeft = document.querySelectorAll('.car-left');
 const carsRight = document.querySelectorAll('.car-right');
 
-// Added audio files
-const jumpSound = new Audio('jump.mp3');
-const collideSound = new Audio('collide.mp3');
-const goalSound = new Audio('goal.mp3');
-const backgroundMusic = new Audio('background.mp3');
-backgroundMusic.loop = true;
-
 // Added variables for lives and score
 let lives = 3;
 let score = 0;
@@ -30,8 +23,6 @@ let currentTime = 20;
 
 function moveFrog(e) {
     squares[currentIndex].classList.remove('frog');
-    if (!isInvincible) collideSound.play(); // Play collide sound on movement
-
     switch (e.key) {
         case 'ArrowLeft':
             if (currentIndex % width !== 0) currentIndex -= 1;
@@ -47,7 +38,6 @@ function moveFrog(e) {
             break;
     }
     squares[currentIndex].classList.add('frog');
-    jumpSound.play(); // Play jump sound
 }
 
 function autoMoveElements() {
@@ -59,8 +49,7 @@ function autoMoveElements() {
     carsLeft.forEach((carLeft) => moveCarLeft(carLeft));
     carsRight.forEach((carRight) => moveCarRight(carRight));
 
-    // Add power-ups and their effects
-    if (Math.random() < 0.02) generatePowerUp(); // Randomly generate power-ups
+    if (Math.random() < 0.02) generatePowerUp();
     applyPowerUpEffects();
 }
 
@@ -72,24 +61,19 @@ function checkOutComes() {
 function moveLogLeft(logLeft) {
     switch (true) {
         case logLeft.classList.contains('l1'):
-            logLeft.classList.remove('l1');
-            logLeft.classList.add('l2');
+            logLeft.classList.replace('l1', 'l2');
             break;
         case logLeft.classList.contains('l2'):
-            logLeft.classList.remove('l2');
-            logLeft.classList.add('l3');
+            logLeft.classList.replace('l2', 'l3');
             break;
         case logLeft.classList.contains('l3'):
-            logLeft.classList.remove('l3');
-            logLeft.classList.add('l4');
+            logLeft.classList.replace('l3', 'l4');
             break;
         case logLeft.classList.contains('l4'):
-            logLeft.classList.remove('l4');
-            logLeft.classList.add('l5');
+            logLeft.classList.replace('l4', 'l5');
             break;
         case logLeft.classList.contains('l5'):
-            logLeft.classList.remove('l5');
-            logLeft.classList.add('l1');
+            logLeft.classList.replace('l5', 'l1');
             break;
     }
 }
@@ -97,24 +81,19 @@ function moveLogLeft(logLeft) {
 function moveLogRight(logRight) {
     switch (true) {
         case logRight.classList.contains('l1'):
-            logRight.classList.remove('l1');
-            logRight.classList.add('l5');
+            logRight.classList.replace('l1', 'l5');
             break;
         case logRight.classList.contains('l2'):
-            logRight.classList.remove('l2');
-            logRight.classList.add('l1');
+            logRight.classList.replace('l2', 'l1');
             break;
         case logRight.classList.contains('l3'):
-            logRight.classList.remove('l3');
-            logRight.classList.add('l2');
+            logRight.classList.replace('l3', 'l2');
             break;
         case logRight.classList.contains('l4'):
-            logRight.classList.remove('l4');
-            logRight.classList.add('l3');
+            logRight.classList.replace('l4', 'l3');
             break;
         case logRight.classList.contains('l5'):
-            logRight.classList.remove('l5');
-            logRight.classList.add('l4');
+            logRight.classList.replace('l5', 'l4');
             break;
     }
 }
@@ -122,16 +101,13 @@ function moveLogRight(logRight) {
 function moveCarLeft(carLeft) {
     switch (true) {
         case carLeft.classList.contains('c1'):
-            carLeft.classList.remove('c1');
-            carLeft.classList.add('c2');
+            carLeft.classList.replace('c1', 'c2');
             break;
         case carLeft.classList.contains('c2'):
-            carLeft.classList.remove('c2');
-            carLeft.classList.add('c3');
+            carLeft.classList.replace('c2', 'c3');
             break;
         case carLeft.classList.contains('c3'):
-            carLeft.classList.remove('c3');
-            carLeft.classList.add('c1');
+            carLeft.classList.replace('c3', 'c1');
             break;
     }
 }
@@ -139,16 +115,13 @@ function moveCarLeft(carLeft) {
 function moveCarRight(carRight) {
     switch (true) {
         case carRight.classList.contains('c1'):
-            carRight.classList.remove('c1');
-            carRight.classList.add('c3');
+            carRight.classList.replace('c1', 'c3');
             break;
         case carRight.classList.contains('c2'):
-            carRight.classList.remove('c2');
-            carRight.classList.add('c1');
+            carRight.classList.replace('c2', 'c1');
             break;
         case carRight.classList.contains('c3'):
-            carRight.classList.remove('c3');
-            carRight.classList.add('c2');
+            carRight.classList.replace('c3', 'c2');
             break;
     }
 }
@@ -163,7 +136,6 @@ function lose() {
         if (!isInvincible) {
             lives--;
             resultDisplay.textContent = `Lives: ${lives}`;
-            collideSound.play();
         }
 
         if (lives <= 0) {
@@ -180,7 +152,6 @@ function win() {
     if (squares[currentIndex].classList.contains('ending-block')) {
         score += 100;
         resultDisplay.textContent = `Score: ${score}`;
-        goalSound.play();
         clearInterval(timerId);
         clearInterval(outcomeTimerId);
         document.removeEventListener('keyup', moveFrog);
@@ -220,11 +191,9 @@ startPauseButton.addEventListener('click', () => {
         outcomeTimerId = null;
         timerId = null;
         document.removeEventListener('keyup', moveFrog);
-        backgroundMusic.pause();
     } else {
         timerId = setInterval(autoMoveElements, isSpeedBoost ? 500 : 1000); // Speed boost effect
         outcomeTimerId = setInterval(checkOutComes, 50);
         document.addEventListener('keyup', moveFrog);
-        backgroundMusic.play();
     }
 });
