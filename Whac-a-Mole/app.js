@@ -7,61 +7,61 @@ let hitPosition;
 let currentTime = 60;
 let timerId = null;
 let moleTimerId = null;
-let moleSpeed = 1000; // Initial speed in milliseconds
-const bonusProbability = 0.2; // 20% chance for a bonus mole
 
+// Function to generate a random square and assign a type of mole
 function randomSquare() {
   squares.forEach(square => {
-    square.classList.remove('mole', 'bonus-mole'); // Remove mole styles
+    square.classList.remove('mole', 'bonus-mole'); // Clear previous mole styles
   });
 
   let randomSquare = squares[Math.floor(Math.random() * 9)];
-  const isBonus = Math.random() < bonusProbability;
-
-  if (isBonus) {
-    randomSquare.classList.add('bonus-mole'); // Add bonus style
-    hitPosition = { id: randomSquare.id, isBonus: true };
+  
+  // Enhancement: Randomly decide whether to make this a "bonus" mole
+  if (Math.random() > 0.8) { // 20% chance for bonus mole
+    randomSquare.classList.add('bonus-mole'); // Bonus mole style
+    randomSquare.dataset.points = 5; // Assign 5 points for bonus mole
   } else {
-    randomSquare.classList.add('mole'); // Regular mole
-    hitPosition = { id: randomSquare.id, isBonus: false };
+    randomSquare.classList.add('mole'); // Regular mole style
+    randomSquare.dataset.points = 1; // Assign 1 point for regular mole
   }
+
+  hitPosition = randomSquare.id; // Set the mole's position for tracking
 }
 
+// Function to dynamically adjust mole speed based on score
+function moveMole() {
+  clearInterval(moleTimerId); // Clear existing mole timer
+
+  // Enhancement: Reduce mole interval as score increases to increase difficulty
+  let speed = Math.max(300, 1000 - result * 50); // Minimum speed is 300ms
+  moleTimerId = setInterval(randomSquare, Math.random() * speed + 300); // Randomize timing slightly
+}
+
+// Event listener to track hits on moles
 squares.forEach(square => {
   square.addEventListener('mousedown', () => {
-    if (hitPosition && square.id == hitPosition.id) {
-      if (hitPosition.isBonus) {
-        result += 5; // Bonus mole gives 5 points
-      } else {
-        result++;
-      }
-      score.textContent = result;
-      hitPosition = null;
-
-      // Increase difficulty as score increases
-      if (result % 10 === 0 && moleSpeed > 300) {
-        moleSpeed -= 100; // Reduce mole speed by 100ms every 10 points
-        clearInterval(moleTimerId); // Clear previous timer
-        moveMole(); // Restart mole movement with new speed
-      }
+    if (square.id == hitPosition) { // Check if the correct mole is hit
+      result += parseInt(square.dataset.points); // Add points based on mole type
+      score.textContent = result; // Update score dynamically
+      hitPosition = null; // Reset hit position
+      moveMole(); // Enhancement: Adjust speed dynamically based on score
     }
   });
 });
 
-function moveMole() {
-  moleTimerId = setInterval(randomSquare, moleSpeed);
-}
-
+// Countdown timer
 function countDown() {
   currentTime--;
   timeLeft.textContent = currentTime;
 
   if (currentTime === 0) {
-    clearInterval(countDownTimerId);
-    clearInterval(moleTimerId);
+    clearInterval(countDownTimerId); // Stop countdown
+    clearInterval(moleTimerId); // Stop mole movements
     alert('GAME OVER! Your final score is ' + result);
   }
 }
 
+let countDownTimerId = setInterval(countDown, 1000); // Start the countdown
+
+// Start the mole movement
 moveMole();
-let countDownTimerId = setInterval(countDown, 1000);

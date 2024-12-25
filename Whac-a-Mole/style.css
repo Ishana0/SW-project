@@ -1,6 +1,6 @@
 .grid {
-    width: 600px;
-    height: 600px;
+    width: 606px;
+    height: 606px;
     display: flex;
     flex-wrap: wrap;
 }
@@ -12,6 +12,6 @@
 }
 
 .mole {
-    background-image: url('Memory-Game/Image-files/mole.jpg');
+    background-image: url('Whac-a-Mole/image/mole.jpg');
     background-size: cover;
 }
